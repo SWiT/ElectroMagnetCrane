@@ -13,6 +13,7 @@ int rotPos = 90;
 
 unsigned long now = 0;
 unsigned long timeLastServo = 0;
+unsigned long timeLastOutput = 0;
 
 void setup() {
   pinMode(StatusLEDPin, OUTPUT);
@@ -30,10 +31,15 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(".");  //I'm alive
-  delay(1000);
-  
   now = millis();
+  
+  //Output keep alive (for testing)
+  if((now - timeLastOutput) > 1000){
+    XbeeSerial.print(".");  //I'm alive
+    XbeeSerial.println(now);
+    timeLastOutput = now;
+  }
+  
   
   //If exists read command character from Xbee
   while(XbeeSerial.available()){
@@ -96,20 +102,20 @@ void loop() {
         } 
       } 
 
-      // Output to Serial:
+      // Output to Xbee Serial:
       if (bytesread == 12) {                          // if 12 digit read is complete
-//        Serial.print("5-byte code: ");
-//        for (i=0; i<5; i++) {
-//          if (code[i] < 16) Serial.print("0");
-//          Serial.print(code[i], HEX);
-//          Serial.print(" ");
-//        }
-//        Serial.println();
-//
-//        Serial.print("Checksum: ");
-//        Serial.print(code[5], HEX);
-//        Serial.println(code[5] == checksum ? " -- passed." : " -- error.");
-//        Serial.println();
+        XbeeSerial.print("5-byte code: ");
+        for (i=0; i<5; i++) {
+          if (code[i] < 16) XbeeSerial.print("0");
+          XbeeSerial.print(code[i], HEX);
+          XbeeSerial.print(" ");
+        }
+        XbeeSerial.println();
+
+        XbeeSerial.print("Checksum: ");
+        XbeeSerial.print(code[5], HEX);
+        XbeeSerial.println(code[5] == checksum ? " -- passed." : " -- error.");
+        XbeeSerial.println();
       }
 
       bytesread = 0;
